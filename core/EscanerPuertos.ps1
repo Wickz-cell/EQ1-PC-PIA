@@ -6,7 +6,7 @@ $waittime = 100
 
 # Solicitamos direccion ip a escanear:
 #
-
+ipconfig >info.txt
 $dir = Select-String -Pattern " Direcci¢n IPv4. . . . . . . . . . . . . . : \d{3}.\d.\d.\d{3}"  info.txt
 $dire = $dir  -match '\d{3}.\d.\d.\d{3}'
 $direccion = $Matches.0
