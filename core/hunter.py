@@ -1,44 +1,29 @@
 import json 
-
 import requests 
 
- 
+def analizarCorreo(txt, key, result):
+    apikey = key 
+    fo = open(txt, "r")
+    foo = open(result, "w")
+    for line in fo:
+        email = line
+        page = requests.get("https://api.hunter.io/v2/email-verifier?email="+email+"&api_key="+apikey)
+        foo.write("La respuesta HTTP para " + email + " es " + str(page.status_code) + "\n")
+        hunter = json.loads(page.content)
+        for key in hunter["data"]:
+            if key == "sources":
+                foo.write("El correo se encontró en " + str(len(hunter["data"]["sources"])) + " fuentes:\n")
+                for sourc in range(len(hunter["data"]["sources"])):
+                    url = "http://" + hunter["data"]["sources"][sourc]["domain"]
+                    pagestat = requests.get(url)
+                    if pagestat.status_code == 200:
+                        foo.write(str(sourc) + "\t" + url + "\tstatus: " + str(pagestat.status_code) + "\n")
+                    else:
+                        foo.write(str(sourc) + "\t" + url + "\tstatus: " + str(pagestat.status_code) + " Falló" + "\n")
+        foo.write("\n")
 
-apikey = ("b28e63393a32cd2c22aa2cb38d77c276e8ab4445") 
+txt = input("Txt: ")
+key = input("Key: ")
+result = input("Result txt: ")
 
-email = "steli@close.io" 
-
-page = requests.get ("https://api.hunter.io/v2/email-verifier?email="+email+"&api_key="+apikey) 
-
-print ("La respuesta HTTP:", page.status_code) 
-
-hunter = json.loads(page.content) 
-
- 
-
-input("Se muestra el contenido del diccionario") 
-
-for key in hunter["data"]: 
-
-    print (key, hunter["data"][key]) 
-
-    if key == "sources": 
-
-        print ("Sources",len(hunter["data"]["sources"])) 
-
-        print ("\n\nEl correo "+email+", se encontró en las siguientes fuentes:") 
-
-        for sourc in range(len(hunter["data"]["sources"])): 
-
-            URL = "http://"+hunter["data"]["sources"][sourc]["domain"] 
-
-            pagestat = requests.get(URL) 
-
-            if pagestat.status_code == 200: 
-
-                print (sourc,"\t",URL,"\tstatus:",pagestat.status_code) 
-
-            else: 
-
-                print (sourc,"\t",URL,"\tstatus:",pagestat.status_code, "Falló") 
-
+analizarCorreo(txt, key, result)
